@@ -1,0 +1,78 @@
+import ccxt
+binance_exchange=ccxt.binance({
+    'timeout':15000,
+    'enableRateLimit':True
+})
+#初始化交易所
+
+print('交易所id: ',binance_exchange.id)
+print('交易所名称: ',binance_exchange.name)
+print('是否支持共有API: ',binance_exchange.has['publicAPI'])
+print('是否支持私有API: ',binance_exchange.has['privateAPI'])
+print('支持的时间频率: ',binance_exchange.timeframes)
+print('最长的等待时间(s): ',binance_exchange.timeout/1000)
+print('访问频率 ',binance_exchange.rateLimit/1000)
+print('交易所当前时间: ',binance_exchange.iso8601(binance_exchange.milliseconds()))
+
+#加载市场数据
+binance_markets = binance_exchange.load_markets()
+
+#支持的交易对
+list(binance_markets)
+
+symbol = 'BTC/USDT'
+
+#获取指定交易对
+btc_usdt_market = binance_markets[symbol]
+btc_usdt_market
+
+#获取单个交易对ticker数据
+ticker_data = binance_exchange.fetchTicker(symbol)
+ticker_data
+
+print('Ticker时刻：',ticker_data['datetime'])
+print('Ticker价格',ticker_data['last'])
+
+#获取多个交易对TICKER
+symbols = ('BTC/USDT','ETH/USDT')
+tickers_data = binance_exchange.fetchTickers(symbols)
+tickers_data
+
+#交易委托账本数据获取
+binance_exchange.fetch_order_book(symbol)
+#获取上一次访问交易所的时间
+binance_exchange.last_response_headers['Date']
+
+import pandas as pd
+
+#K线数据获取
+if binance_exchange.has['fetchOHLCV']:
+    print(binance_exchange.fetch_ohlcv(symbol,timeframe ='1d'))
+    
+  if binance_exchange.has['fetchOHLCV']:
+  kline_data = pd.DataFrame(binance_exchange.fetch_ohlcv(symbol,timeframe='1m'))
+  kline_data.columns = ['Datetime','Open','High','Low','Close','Vol']
+  
+  kline_data.head()
+  kline_data.tail()
+  kline_data.shape
+  
+all_kline_data_df = pd.DataFrame(all_kline_data)
+all_kline_data_df.columns = ['Datetime','Open','High','Low','Close','Vol']
+all_kline_data_df['Datetime'] = all_kline_data_df['Datetime'].apply(binance_exchange.iso8601)
+
+all_kline_data_df.shape
+all_kline_data_df.head()
+all_kline_data_df.tail()
+all_kline_data_df[all_kline_data_df['Datetime'].duplicated()]
+kline_data['Datetime'] = kline_data['Datetime'].apply(binance_exchange.iso8601)
+    
+all_kline_data_df.drop_duplicates(subset=['Datetime'],inplace = True)
+
+all_kline_data_df['Datetime'] = pd.to_datetime(all_kline_data_df['Datetime'])
+all_kline_data_df.set_index('Datetime',inplace = True)
+
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+all_kline_data_df['Open'].plot(figsize=(15,12))
