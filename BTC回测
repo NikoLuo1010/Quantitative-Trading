@@ -1,0 +1,45 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from patsy import dmatrix
+from sklearn.ensemble import RandomForestClassifier
+from sklearn import linear_model
+
+ibtc = pd.read_csv(r"C:\Users\Admin\Desktop\ibtc.csv" , encoding = "latin - 1")
+ibtc.info()
+ibtc["Date"] = pd.to_datetime(ibtc["Date"])
+ibtc["Open"] = ibtc["Open"].str.replace(',','').astype('float')
+ibtc["High"] = ibtc["High"].str.replace(',','').astype('float')
+ibtc["Low"] = ibtc["Low"].str.replace(',','').astype('float')
+ibtc["Close"] = ibtc["Close"].str.replace(',','').astype('float')
+ibtc["Volume"] = ibtc["Volume"].str.replace(',','').astype('float')
+ibtc["Market Cap"] = ibtc["Market Cap"].str.replace(',','').astype('float')
+ibtc.describe()
+
+ibtc.groupby(ibtc["Date"].dt.year)["Volume"]\
+.mean().plot(kind = "bar", figsize = (15,10), color = "pink" , title = "Open Mean BTC Percentage Change")
+
+ibtc.groupby(ibtc["Date"].dt.year)["Open"]\
+.mean().plot(kind = "bar", figsize = (15,10), color = "pink" , title = "Open Mean BTC Percentage Change")
+
+ibtc.groupby(ibtc["Date"].dt.year)["Open"]\
+.median().plot(kind = "bar", figsize = (15,10), color = "pink" , title = "Open Mmedian BTC Percentage Change")
+
+ibtc["Open"].hist(figsize = (15,7),bins = 100 , color = "pink")
+
+ibtc["Chg1 High to Low"] = ibtc["High"] - ibtc["Low"]
+
+ibtc["Chg1 High to Low"].describe()
+ibtc["Chg1 High to Low"].hist(figsize = (15,7) , bins = 100 ,color = "pink")
+
+print(ibtc["Chg1 High to Low"])
+
+ibtc["Chg2 Open to Close"] = ibtc["Chg1 High to Low"] / ibtc["Open"] * 100
+
+ibtc["Chg2 Open to Close"].describe()
+
+ibtc["Chg2 Open to Close"].hist(figsize = (15,7) , bins = 100 ,color = "pink")
+
+ibtc[ibtc["Date"] >= "2021-4-30"]["Chg1 High to Low"].describe()
+
+ibtc[ibtc["Date"] >= "2021-4-30"]["Chg1 High to Low"].hist(figsize = (15,7) , bins = 100 ,color = "pink")
