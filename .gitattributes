@@ -1,0 +1,4 @@
+*.md linguist-language=Python
+*.js linguist-language=python
+*.css linguist-language=pyhton
+*.html linguist-language=python
